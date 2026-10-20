@@ -1,0 +1,8 @@
+﻿fastapi
+uvicorn[standard]
+pandas
+numpy
+scipy
+python-multipart
+pytest
+httpx
