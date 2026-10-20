@@ -1,8 +1,10 @@
-﻿# DataLens AI
+
+# Automate-EDA
 
 Automated exploratory data analysis and AI-assisted data insights from CSV files.
 
 ## Planned Features
+
 - CSV upload and dataset profiling
 - Missing-value and duplicate analysis
 - Statistical summaries, distributions, correlations and outlier detection
@@ -10,15 +12,18 @@ Automated exploratory data analysis and AI-assisted data insights from CSV files
 - Visualizations and downloadable reports
 
 ## Architecture
+
 - Backend: Python, FastAPI, Pandas, NumPy, SciPy
 - Frontend: React, TypeScript, Vite
 - Testing: Pytest and HTTPX
-- AI: compatible open-weight model; inference runtime to be selected later
+- AI: Compatible open-weight model; inference runtime to be selected later
 
 ## Development Status
+
 Initial scaffold. Application features are not implemented yet.
 
 ## Roadmap
+
 1. Backend health endpoint and tests
 2. Deterministic EDA engine
 3. CSV upload API and validation
