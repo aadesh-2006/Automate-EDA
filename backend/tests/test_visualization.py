@@ -3,8 +3,12 @@ import io
 
 import matplotlib.image as mpimg
 import pytest
-
-from app.services.visualization import create_histogram
+from app.services.visualization import (
+    create_correlation_heatmap,
+    create_histogram,
+    create_box_plot,
+    detect_outliers,
+)
 
 
 def test_create_histogram_returns_png_bytes():
@@ -41,10 +45,6 @@ def test_create_histogram_rejects_empty_csv():
     with pytest.raises(ValueError, match="cannot be empty"):
         create_histogram("", "age")
 
-
-from app.services.visualization import create_box_plot, detect_outliers
-
-
 def test_create_box_plot_returns_png_bytes():
     result = create_box_plot("score\n10\n20\n30\n40\n100", "score")
 
@@ -73,3 +73,30 @@ def test_detect_outliers_rejects_missing_column():
 
     with pytest.raises(ValueError, match="was not found"):
         detect_outliers("age\n20\n30", "salary")
+
+def test_create_correlation_heatmap_returns_png_bytes():
+    csv_content = (
+        "age,salary,score\n"
+        "20,25000,70\n"
+        "25,40000,80\n"
+        "30,55000,85\n"
+        "35,65000,90"
+    )
+
+    result = create_correlation_heatmap(csv_content)
+
+    assert isinstance(result, bytes)
+    assert result.startswith(b"\x89PNG\r\n\x1a\n")
+
+    image = mpimg.imread(io.BytesIO(result), format="png")
+    assert image.size > 0
+
+
+def test_create_correlation_heatmap_rejects_insufficient_numeric_columns():
+    with pytest.raises(ValueError, match="At least two columns"):
+        create_correlation_heatmap("age,name\n20,Aadesh\n25,Rahul")
+
+
+def test_create_correlation_heatmap_rejects_empty_csv():
+    with pytest.raises(ValueError, match="cannot be empty"):
+        create_correlation_heatmap("")
