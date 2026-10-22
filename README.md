@@ -6,7 +6,7 @@ Automated exploratory data analysis for CSV datasets, with statistical profiling
 ## Current Features
 
 - **CSV profiling:** row and column counts, column names, data types, unique values, and numeric statistical summaries.
-- **Data quality:** missing-value counts and percentages, plus duplicate-row detection.
+- **Data quality:** missing-value counts and percentages, duplicate rows, constant columns, high-cardinality columns, and potential mixed numeric/text columns.
 - **Visualizations:** PNG histograms, box plots, and correlation heatmaps.
 - **HTML reports:** Downloadable, self-contained reports with dataset statistics and embedded charts.
 - **Outlier detection:** identifies potential numeric outliers using the 1.5×IQR rule.
@@ -93,6 +93,7 @@ CSV endpoints accept raw CSV text in the request body. Send `Content-Type: text/
 | POST | `/api/v1/eda/visualizations/box-plot?column=age` | Generate a box plot for a numeric column |
 | POST | `/api/v1/eda/visualizations/correlation-heatmap` | Generate a heatmap for numeric columns |
 | POST | `/api/v1/eda/outliers?column=age` | Detect outliers in a numeric column |
+| POST | `/api/v1/eda/data-quality` | Identify data-quality issues and suspicious columns |
 | POST | `/api/v1/eda/report/html` | Download a standalone HTML EDA report |
 
 ### Examples
@@ -127,6 +128,14 @@ curl -X POST "http://127.0.0.1:8000/api/v1/eda/visualizations/correlation-heatma
   -H "Content-Type: text/csv" \
   --data-binary "@sample.csv" \
   --output correlation-heatmap.png
+```
+
+Analyze data quality:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/v1/eda/data-quality" \
+  -H "Content-Type: text/csv" \
+  --data-binary "@sample.csv"
 ```
 
 Detect outliers:
@@ -167,7 +176,7 @@ python -m pytest backend/tests -v
 - [x] Correlation heatmaps
 - [x] IQR-based outlier detection
 - [x] API integration tests
-- [ ] More comprehensive data-quality checks
+- [x] More comprehensive data-quality checks
 - [x] Downloadable HTML report
 - [ ] Downloadable PDF reports
 - [ ] Evidence-grounded insights using a compatible open-weight model

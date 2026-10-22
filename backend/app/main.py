@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 
 from app.eda import profile_csv
+from app.services.data_quality import analyze_data_quality
 from app.services.report import generate_html_report
 from app.services.visualization import (
     create_box_plot,
@@ -115,3 +116,21 @@ async def html_report(request: Request):
             "Content-Disposition": 'attachment; filename="datalens-eda-report.html"'
         },
     )
+
+
+@app.post(
+    "/api/v1/eda/data-quality",
+    openapi_extra={
+        "requestBody": {
+            "required": True,
+            "content": {"text/csv": {"schema": {"type": "string"}}},
+        }
+    },
+)
+async def data_quality(request: Request):
+    """Analyze data-quality issues in an uploaded CSV."""
+    csv_content = await read_csv_request(request)
+    try:
+        return analyze_data_quality(csv_content)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc

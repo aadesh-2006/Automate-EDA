@@ -120,3 +120,26 @@ def test_heatmap_endpoint_returns_400_for_insufficient_numeric_columns():
 
     assert response.status_code == 400
     assert "At least two columns" in response.json()["detail"]
+
+
+def test_data_quality_endpoint_returns_json():
+    response = client.post(
+        "/api/v1/eda/data-quality",
+        content="name,score\nAadesh,10\nAadesh,10\nRahul,\n",
+        headers={"Content-Type": "text/csv"},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["rows"] == 3
+    assert data["missing_values_total"] == 1
+    assert data["duplicate_rows"] == 1
+
+
+def test_data_quality_endpoint_rejects_empty_csv():
+    response = client.post(
+        "/api/v1/eda/data-quality",
+        content="",
+        headers={"Content-Type": "text/csv"},
+    )
+    assert response.status_code == 400
+    assert "cannot be empty" in response.json()["detail"]
