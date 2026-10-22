@@ -1,8 +1,9 @@
-﻿
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 
 from app.eda import profile_csv
+from app.services.report import generate_html_report
 from app.services.visualization import (
     create_box_plot,
     create_correlation_heatmap,
@@ -88,3 +89,29 @@ async def outliers(request: Request, column: str):
         return detect_outliers(csv_content, column)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/eda/report/html",
+    openapi_extra={
+        "requestBody": {
+            "required": True,
+            "content": {"text/csv": {"schema": {"type": "string"}}},
+        }
+    },
+)
+async def html_report(request: Request):
+    """Generate a downloadable, self-contained HTML EDA report."""
+    csv_content = await read_csv_request(request)
+    try:
+        report = generate_html_report(csv_content)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return Response(
+        content=report,
+        media_type="text/html",
+        headers={
+            "Content-Disposition": 'attachment; filename="datalens-eda-report.html"'
+        },
+    )

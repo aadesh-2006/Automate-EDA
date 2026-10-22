@@ -8,6 +8,7 @@ Automated exploratory data analysis for CSV datasets, with statistical profiling
 - **CSV profiling:** row and column counts, column names, data types, unique values, and numeric statistical summaries.
 - **Data quality:** missing-value counts and percentages, plus duplicate-row detection.
 - **Visualizations:** PNG histograms, box plots, and correlation heatmaps.
+- **HTML reports:** Downloadable, self-contained reports with dataset statistics and embedded charts.
 - **Outlier detection:** identifies potential numeric outliers using the 1.5×IQR rule.
 - **Input validation:** rejects empty CSV content, invalid UTF-8, missing columns, and unsupported numeric data.
 - **REST API:** FastAPI endpoints with automated tests.
@@ -92,6 +93,7 @@ CSV endpoints accept raw CSV text in the request body. Send `Content-Type: text/
 | POST | `/api/v1/eda/visualizations/box-plot?column=age` | Generate a box plot for a numeric column |
 | POST | `/api/v1/eda/visualizations/correlation-heatmap` | Generate a heatmap for numeric columns |
 | POST | `/api/v1/eda/outliers?column=age` | Detect outliers in a numeric column |
+| POST | `/api/v1/eda/report/html` | Download a standalone HTML EDA report |
 
 ### Examples
 
@@ -135,6 +137,15 @@ curl -X POST "http://127.0.0.1:8000/api/v1/eda/outliers?column=age" \
   --data-binary "@sample.csv"
 ```
 
+Download a standalone HTML report:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/v1/eda/report/html" \
+  -H "Content-Type: text/csv" \
+  --data-binary "@sample.csv" \
+  --output datalens-eda-report.html
+```
+
 Replace `sample.csv` with your CSV file. The requested column must exist and contain numeric values for histogram, box plot, and outlier detection. The correlation heatmap requires at least two columns containing numeric values.
 
 Invalid input returns HTTP `400` with a JSON `detail` message.
@@ -157,7 +168,8 @@ python -m pytest backend/tests -v
 - [x] IQR-based outlier detection
 - [x] API integration tests
 - [ ] More comprehensive data-quality checks
-- [ ] Downloadable HTML/PDF reports
+- [x] Downloadable HTML report
+- [ ] Downloadable PDF reports
 - [ ] Evidence-grounded insights using a compatible open-weight model
 - [ ] React dashboard and end-to-end testing
 
