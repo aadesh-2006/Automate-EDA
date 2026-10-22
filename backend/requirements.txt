@@ -6,3 +6,5 @@ scipy
 python-multipart
 pytest
 httpx
+
+matplotlib
