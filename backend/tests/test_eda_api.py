@@ -54,3 +54,69 @@ def test_health_endpoint_still_works():
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+def test_histogram_endpoint_returns_png():
+    response = client.post(
+        "/api/v1/eda/visualizations/histogram?column=age",
+        content="age,salary\n20,25000\n25,40000\n30,55000",
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/png"
+    assert response.content.startswith(b"\x89PNG\r\n\x1a\n")
+
+
+def test_box_plot_endpoint_returns_png():
+    response = client.post(
+        "/api/v1/eda/visualizations/box-plot?column=age",
+        content="age\n10\n20\n30\n40\n100",
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/png"
+    assert response.content.startswith(b"\x89PNG\r\n\x1a\n")
+
+
+def test_correlation_heatmap_endpoint_returns_png():
+    response = client.post(
+        "/api/v1/eda/visualizations/correlation-heatmap",
+        content="age,salary\n20,25000\n25,40000\n30,55000",
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/png"
+    assert response.content.startswith(b"\x89PNG\r\n\x1a\n")
+
+
+def test_outliers_endpoint_returns_json():
+    response = client.post(
+        "/api/v1/eda/outliers?column=score",
+        content="score\n10\n11\n12\n13\n14\n100",
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["column"] == "score"
+    assert data["outlier_count"] == 1
+    assert data["outlier_values"] == [100]
+
+
+def test_histogram_endpoint_returns_400_for_missing_column():
+    response = client.post(
+        "/api/v1/eda/visualizations/histogram?column=salary",
+        content="age\n20\n30",
+    )
+
+    assert response.status_code == 400
+    assert "was not found" in response.json()["detail"]
+
+
+def test_heatmap_endpoint_returns_400_for_insufficient_numeric_columns():
+    response = client.post(
+        "/api/v1/eda/visualizations/correlation-heatmap",
+        content="age,name\n20,Aadesh\n25,Rahul",
+    )
+
+    assert response.status_code == 400
+    assert "At least two columns" in response.json()["detail"]

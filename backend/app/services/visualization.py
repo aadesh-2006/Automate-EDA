@@ -66,7 +66,7 @@ def create_box_plot(csv_content: str, column_name: str) -> bytes:
 
     figure, axis = plt.subplots(figsize=(8, 5))
     try:
-        axis.boxplot(series, vert=True)
+        axis.boxplot(series, orientation="vertical")
         axis.set_title(f"Box Plot of {column_name}")
         axis.set_ylabel(column_name)
         figure.tight_layout()
@@ -169,3 +169,4 @@ def create_correlation_heatmap(csv_content: str) -> bytes:
         return image_buffer.getvalue()
     finally:
         plt.close(figure)
+
