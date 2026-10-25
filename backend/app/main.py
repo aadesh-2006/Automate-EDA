@@ -1,3 +1,4 @@
+﻿from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 
@@ -15,6 +16,8 @@ from app.services.visualization import (
     create_histogram,
     detect_outliers,
 )
+
+load_dotenv()
 
 app = FastAPI(
     title="DataLens AI API",
@@ -202,3 +205,4 @@ async def ai_insights(request: Request):
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
