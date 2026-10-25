@@ -143,3 +143,115 @@ def test_data_quality_endpoint_rejects_empty_csv():
     )
     assert response.status_code == 400
     assert "cannot be empty" in response.json()["detail"]
+
+def test_insights_evidence_endpoint_returns_json():
+    response = client.post(
+        "/api/v1/eda/insights/evidence",
+        content="score,note\n10,hello\n20,world\n",
+        headers={"Content-Type": "text/csv"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["dataset"]["rows"] == 2
+    assert data["dataset"]["column_names"] == ["score", "note"]
+    assert "findings" in data
+    assert isinstance(data["findings"], list)
+
+
+def test_insights_evidence_endpoint_rejects_empty_csv():
+    response = client.post(
+        "/api/v1/eda/insights/evidence",
+        content="",
+        headers={"Content-Type": "text/csv"},
+    )
+
+    assert response.status_code == 400
+    assert "cannot be empty" in response.json()["detail"]
+
+
+def test_ai_insights_endpoint_returns_generated_insights(monkeypatch):
+    from app import main
+
+    async def mock_generate_insights(csv_content):
+        assert csv_content == "score\n10\n20\n"
+        return {
+            "dataset": {"rows": 2, "column_names": ["score"]},
+            "findings": [],
+            "insights": "## Dataset overview\nThe dataset contains two rows.",
+        }
+
+    monkeypatch.setattr(
+        main,
+        "generate_dataset_insights",
+        mock_generate_insights,
+    )
+
+    response = client.post(
+        "/api/v1/eda/insights",
+        content="score\n10\n20\n",
+        headers={"Content-Type": "text/csv"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["dataset"]["rows"] == 2
+    assert data["findings"] == []
+    assert "two rows" in data["insights"]
+
+def test_ai_insights_endpoint_returns_503_when_llm_is_unconfigured(
+    monkeypatch,
+):
+    from app import main
+    from app.services.llm_client import LLMConfigurationError
+
+    async def mock_generate_insights(csv_content):
+        raise LLMConfigurationError("Missing LLM configuration: LLM_API_KEY")
+
+    monkeypatch.setattr(
+        main,
+        "generate_dataset_insights",
+        mock_generate_insights,
+    )
+
+    response = client.post(
+        "/api/v1/eda/insights",
+        content="score\n10\n20\n",
+        headers={"Content-Type": "text/csv"},
+    )
+
+    assert response.status_code == 503
+    assert "Missing LLM configuration" in response.json()["detail"]
+
+def test_ai_insights_endpoint_returns_502_when_provider_fails(monkeypatch):
+    from app import main
+    from app.services.llm_client import LLMProviderError
+
+    async def mock_generate_insights(csv_content):
+        raise LLMProviderError("LLM provider returned HTTP 503.")
+
+    monkeypatch.setattr(
+        main,
+        "generate_dataset_insights",
+        mock_generate_insights,
+    )
+
+    response = client.post(
+        "/api/v1/eda/insights",
+        content="score\n10\n20\n",
+        headers={"Content-Type": "text/csv"},
+    )
+
+    assert response.status_code == 502
+    assert "LLM provider returned HTTP 503" in response.json()["detail"]
+
+
+def test_ai_insights_endpoint_returns_400_for_empty_csv():
+    response = client.post(
+        "/api/v1/eda/insights",
+        content="",
+        headers={"Content-Type": "text/csv"},
+    )
+
+    assert response.status_code == 400
+    assert "cannot be empty" in response.json()["detail"]
