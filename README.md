@@ -1,96 +1,131 @@
-# DataLens AI — Automated Exploratory Data Analysis
+# DataLens AI — AI-Powered Exploratory Data Analysis
 
-**DataLens AI** is a full-stack exploratory data analysis platform that helps users profile CSV datasets, identify data-quality issues, visualize distributions and relationships, detect outliers, generate reports, and obtain AI-assisted insights grounded in dataset evidence.
+**DataLens AI** is a full-stack data analysis platform that automates exploratory data analysis (EDA), identifies data-quality issues, generates visualizations and reports, and uses a **fine-tuned Qwen3:4B language model** to produce AI-assisted, evidence-grounded insights from tabular datasets.
 
-The project combines a React dashboard, a FastAPI backend, deterministic statistical analysis, and an OpenAI-compatible LLM interface for AI-generated insights.
+The platform combines deterministic statistical analysis with a specialized language model to help users understand their datasets, discover patterns, investigate anomalies, and make data-informed decisions.
 
-## Features
+## Key Features
 
-### Dataset Profiling
-- Upload and analyze CSV datasets.
-- View row counts, column counts, column names, data types, unique values, and numeric summaries.
-- Inspect missing-value counts and percentages.
+### 1. Automated Dataset Profiling
+- Analyze CSV datasets through a web-based dashboard.
+- Calculate row and column counts, data types, unique values, and numeric statistical summaries.
+- Identify missing values and their percentages.
+- Inspect dataset structure before performing deeper analysis.
 
-### Data Quality Analysis
+### 2. Data Quality Analysis
 - Detect missing values and duplicate rows.
-- Identify constant columns and high-cardinality columns.
+- Identify constant columns and high-cardinality features.
 - Flag potential mixed-type columns.
-- Review structured data-quality findings.
+- Generate structured data-quality findings to support data cleaning and preprocessing.
 
-### Visualizations
-- Generate histograms for numeric columns.
-- Generate box plots to inspect distributions and potential outliers.
-- Explore correlations between numeric features with correlation heatmaps.
-- Render visualizations through the dashboard and backend API.
+### 3. Interactive Data Visualizations
+- **Histograms:** Explore numeric feature distributions.
+- **Box plots:** Inspect spread, quartiles, and potential outliers.
+- **Correlation heatmaps:** Investigate relationships between numeric features.
+- Use visual evidence to investigate unusual patterns and relationships in the data.
 
-### Outlier Detection
+### 4. Outlier Detection
 - Detect potential numeric outliers using the 1.5×IQR rule.
-- Inspect statistical evidence for unusual observations.
+- Identify observations outside the calculated interquartile bounds.
+- Support further investigation of anomalous values.
 
-### Reports
-- Generate downloadable standalone HTML EDA reports.
-- Generate downloadable PDF reports containing dataset analysis and visualizations.
+### 5. Downloadable EDA Reports
+- Generate standalone HTML reports.
+- Export PDF reports containing dataset statistics and visualizations.
+- Share analysis results outside the dashboard.
 
-### AI-Assisted Insights
-- Build structured, deterministic evidence from dataset profiles and data-quality checks.
-- Generate AI-assisted explanations through an OpenAI-compatible chat-completions API.
-- Configure a local LLM using Ollama, including Qwen3:4B.
-- Keep statistical evidence separate from AI-generated interpretations.
+### 6. Fine-Tuned AI Data Analyst
 
-**Interpretation note:** Correlation does not establish causation. Statistical findings and model-generated explanations should be interpreted in the context of the dataset.
+DataLens AI integrates a **fine-tuned Qwen3:4B model** for specialized data-analysis assistance.
 
-## Tech Stack
+The AI layer is designed to interpret structured statistical evidence and communicate findings in a useful, understandable format.
 
-| Layer | Technologies |
+Key objectives include:
+- Interpreting distributions, skewness, and statistical summaries.
+- Explaining potential outliers and data-quality problems.
+- Interpreting feature correlations without automatically treating them as causal relationships.
+- Summarizing evidence-backed patterns and suggesting follow-up analyses.
+- Producing structured analytical responses for integration with the application.
+
+The system combines deterministic Python-based analysis with language-model reasoning. Statistical calculations are handled by the analysis pipeline, while the language model helps interpret and explain the results.
+
+**Model:** Qwen3:4B, fine-tuned for the DataLens AI project.
+
+**Local inference:** Ollama with an OpenAI-compatible API interface.
+
+> Fine-tuning methodology, training dataset composition, adapter details, and quantitative benchmark results should be documented alongside the actual training artifacts and evaluation results.
+
+### 7. REST API
+- FastAPI-based backend.
+- Structured endpoints for profiling, data quality, visualizations, outlier detection, reports, and AI insights.
+- Automated backend tests.
+
+### 8. Full-Stack Dashboard
+- React and TypeScript frontend.
+- Vite development environment.
+- Tailwind CSS for styling.
+- Recharts for chart-based data exploration.
+- Axios for API communication.
+
+## Technology Stack
+
+| Component | Technologies |
 |---|---|
 | Frontend | React, TypeScript, Vite |
-| UI and charts | Tailwind CSS, Recharts, Lucide React |
-| API requests | Axios |
+| Styling | Tailwind CSS |
+| Charts | Recharts |
+| HTTP client | Axios |
 | Backend | Python, FastAPI |
 | Data analysis | Pandas, NumPy, SciPy |
 | Visualization and reports | Matplotlib, HTML, PDF |
-| AI integration | OpenAI-compatible API, Ollama, Qwen3:4B |
+| Language model | Fine-tuned Qwen3:4B |
+| Local inference | Ollama |
+| Training environment | Kaggle GPU notebook, if used for the completed training run |
 | Testing | Pytest, FastAPI TestClient, HTTPX |
 | Version control | Git, GitHub |
 
-## Architecture
+## System Architecture
 
 ```text
-CSV Dataset
-    |
-    v
-React + TypeScript Dashboard
-    |
-    v
-FastAPI REST API
-    |
-    +---- Dataset Profiling
-    |
-    +---- Data Quality Analysis
-    |
-    +---- Visualization Generation
-    |
-    +---- Outlier Detection
-    |
-    +---- HTML / PDF Reports
-    |
-    +---- Evidence Generation
-               |
-               v
-       OpenAI-Compatible LLM
-               |
-               v
-        AI-Assisted Insights
+                     CSV Dataset
+                          |
+                          v
+               React + TypeScript UI
+                          |
+                          v
+                    FastAPI Backend
+                          |
+            +-------------+-------------+
+            |             |             |
+            v             v             v
+       Data Profiling  Data Quality  Visualizations
+            |             |             |
+            +-------------+-------------+
+                          |
+            +-------------+-------------+
+            |             |             |
+            v             v             v
+       Outlier         HTML/PDF      Evidence
+       Detection       Reports       Generation
+                                         |
+                                         v
+                               Fine-Tuned Qwen3:4B
+                                         |
+                                         v
+                                  AI Insights
+                                         |
+                                         v
+                                 Dashboard Output
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python with a version supported by the backend dependencies.
+- Python version supported by the backend dependencies.
 - Node.js and npm.
 - Git.
-- Ollama and a compatible model if you want to use local AI insights.
+- Ollama and the configured fine-tuned model for local AI inference.
 
 ### 1. Clone the Repository
 
@@ -99,7 +134,7 @@ git clone https://github.com/aadesh-2006/Automate-EDA.git
 cd Automate-EDA
 ```
 
-### 2. Set Up the Backend
+### 2. Install Backend Dependencies
 
 Create a virtual environment from the repository root.
 
@@ -111,20 +146,40 @@ python -m venv .venv
 python -m pip install -r backend/requirements.txt
 ```
 
-Start the backend from the repository root:
+### 3. Configure the Language Model
+
+Install Ollama and ensure the fine-tuned Qwen3:4B model is available locally.
+
+If the fine-tuned model has been packaged under a custom Ollama model name, use that name in the configuration. Do not assume that the original `qwen3:4b` tag automatically refers to the fine-tuned version.
+
+Create a `.env` file in the repository root:
+
+```dotenv
+LLM_BASE_URL=http://localhost:11434/v1
+LLM_API_KEY=ollama
+LLM_MODEL=qwen3:4b
+```
+
+Set `LLM_MODEL` to the actual Ollama tag that points to the fine-tuned model, if it differs from `qwen3:4b`.
+
+Keep `.env` local and do not commit private configuration or credentials.
+
+### 4. Start the Backend
+
+From the repository root:
 
 ```powershell
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000
 ```
 
-The API will be available at `http://127.0.0.1:8000`.
+The API will be available at:
 
-- Health check: `http://127.0.0.1:8000/health`
+- Health endpoint: `http://127.0.0.1:8000/health`
 - Interactive API documentation: `http://127.0.0.1:8000/docs`
 
-### 3. Set Up the Frontend
+### 5. Start the Frontend
 
-Open a second terminal at the repository root.
+Open a second terminal:
 
 ```powershell
 cd frontend
@@ -134,29 +189,7 @@ npm run dev
 
 Open the local URL printed by Vite, typically `http://localhost:5173`.
 
-The frontend development server proxies API requests to the backend at `http://127.0.0.1:8000`.
-
-### 4. Configure Local AI with Ollama
-
-Install Ollama from [ollama.com](https://ollama.com/) and download the model:
-
-```powershell
-ollama pull qwen3:4b
-```
-
-Make sure Ollama is running and the model is available. Create a `.env` file in the **repository root**, alongside the backend and frontend directories:
-
-```dotenv
-LLM_BASE_URL=http://localhost:11434/v1
-LLM_API_KEY=ollama
-LLM_MODEL=qwen3:4b
-```
-
-These variables configure the OpenAI-compatible endpoint, API key placeholder, and model name. Ollama normally runs locally at port `11434`.
-
-Keep `.env` local. Do not commit credentials, private configuration, or other secrets to Git. The backend must load these variables before the AI client is initialized.
-
-If AI insights fail to generate, check that Ollama is running, the model is downloaded, the environment variables are correct, and the backend has been restarted after configuration changes.
+The frontend development server proxies supported API requests to the local backend.
 
 ## API Reference
 
@@ -164,27 +197,21 @@ CSV analysis endpoints accept raw CSV text in the request body with `Content-Typ
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/health` | Check API health |
-| POST | `/api/v1/eda/profile` | Return dataset profiling and numeric summaries |
-| POST | `/api/v1/eda/data-quality` | Analyze data-quality issues |
+| GET | `/health` | Check backend health |
+| POST | `/api/v1/eda/profile` | Dataset profile and numeric summaries |
+| POST | `/api/v1/eda/data-quality` | Data-quality analysis |
 | POST | `/api/v1/eda/visualizations/histogram?column=age` | Generate a histogram |
 | POST | `/api/v1/eda/visualizations/box-plot?column=age` | Generate a box plot |
 | POST | `/api/v1/eda/visualizations/correlation-heatmap` | Generate a numeric correlation heatmap |
 | POST | `/api/v1/eda/outliers?column=age` | Detect potential outliers |
-| POST | `/api/v1/eda/report/html` | Generate a downloadable HTML report |
-| POST | `/api/v1/eda/report/pdf` | Generate a downloadable PDF report |
-| POST | `/api/v1/eda/insights/evidence` | Return structured, deterministic analysis evidence |
-| POST | `/api/v1/eda/insights` | Generate AI-assisted insights from dataset evidence |
+| POST | `/api/v1/eda/report/html` | Generate an HTML report |
+| POST | `/api/v1/eda/report/pdf` | Generate a PDF report |
+| POST | `/api/v1/eda/insights/evidence` | Generate structured deterministic evidence |
+| POST | `/api/v1/eda/insights` | Generate AI-assisted insights |
 
-### API Examples
+For endpoints that accept a column query parameter, replace `age` with an appropriate column name in your CSV.
 
-Check the API health:
-
-```bash
-curl http://127.0.0.1:8000/health
-```
-
-Profile a CSV dataset:
+### Example: Profile a Dataset
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/eda/profile" \
@@ -192,7 +219,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/eda/profile" \
   --data-binary "@sample.csv"
 ```
 
-Analyze data quality:
+### Example: Analyze Data Quality
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/eda/data-quality" \
@@ -200,7 +227,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/eda/data-quality" \
   --data-binary "@sample.csv"
 ```
 
-Generate a histogram and save the PNG response:
+### Example: Generate a Histogram
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/eda/visualizations/histogram?column=age" \
@@ -209,7 +236,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/eda/visualizations/histogram?column=a
   --output histogram.png
 ```
 
-Generate a correlation heatmap:
+### Example: Generate a Correlation Heatmap
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/eda/visualizations/correlation-heatmap" \
@@ -218,7 +245,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/eda/visualizations/correlation-heatma
   --output correlation-heatmap.png
 ```
 
-Download an HTML report:
+### Example: Export a Report
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/eda/report/html" \
@@ -227,20 +254,33 @@ curl -X POST "http://127.0.0.1:8000/api/v1/eda/report/html" \
   --output datalens-report.html
 ```
 
-Download a PDF report:
+For PDF output, use `/api/v1/eda/report/pdf` and save the response as a `.pdf` file.
 
-```bash
-curl -X POST "http://127.0.0.1:8000/api/v1/eda/report/pdf" \
-  -H "Content-Type: text/csv" \
-  --data-binary "@sample.csv" \
-  --output datalens-report.pdf
-```
+Replace `sample.csv` with your dataset path. Numeric visualization and outlier endpoints require an appropriate numeric column.
 
-Replace `sample.csv` and `age` with your dataset filename and a numeric column present in the CSV.
+## Datasets and Validation
 
-## Development and Testing
+DataLens AI is intended to support diverse tabular datasets, including sensor telemetry, retail transactions, marketing data, and other structured datasets.
 
-### Backend Tests
+Candidate datasets for testing and benchmarking include:
+
+- Smart-home sensor and occupancy datasets.
+- Wine Quality.
+- Adult Census Income.
+- Bank Marketing.
+- Student Performance.
+- Bike Sharing.
+- NASA C-MAPSS turbofan sensor data.
+- IEEE-CIS Fraud Detection.
+- Instacart Market Basket Analysis.
+- Airbnb listing data.
+- NYC Yellow Taxi trip records.
+
+Dataset use should be recorded accurately: a dataset used to validate EDA functionality is not automatically a model-training dataset. Large datasets may require sampling, preprocessing, or memory-efficient ingestion.
+
+## Testing
+
+### Backend
 
 Run from the repository root:
 
@@ -248,7 +288,7 @@ Run from the repository root:
 .\.venv\Scripts\python.exe -m pytest backend/tests -v
 ```
 
-### Frontend Checks
+### Frontend
 
 Run from the `frontend` directory:
 
@@ -257,7 +297,18 @@ npm run lint
 npm run build
 ```
 
-The production build runs TypeScript checks and creates the frontend bundle.
+### AI Model Evaluation
+
+The fine-tuned model should be evaluated against the original base model using the same held-out examples. Useful evaluation dimensions include:
+
+- Statistical interpretation correctness.
+- Agreement with computed evidence.
+- Unsupported-claim and hallucination rate.
+- Structured-output validity.
+- Usefulness and relevance of recommendations.
+- Inference latency and resource usage.
+
+Publish quantitative results only after running the evaluation and recording the actual measurements.
 
 ## Project Structure
 
@@ -277,28 +328,28 @@ Automate-EDA/
 └── README.md
 ```
 
-The tree above highlights the main application areas; individual modules and files may vary as development continues.
+This is a high-level overview; additional modules and model artifacts may exist in the actual repository.
 
-## Roadmap
+## Engineering Principles
 
-- [x] FastAPI backend and health endpoint
-- [x] CSV profiling and numeric summaries
-- [x] Data-quality analysis
-- [x] Histograms, box plots, and correlation heatmaps
-- [x] IQR-based outlier detection
-- [x] Downloadable HTML and PDF reports
-- [x] React + TypeScript dashboard
-- [x] Deterministic evidence-generation endpoint
-- [x] OpenAI-compatible LLM configuration
-- [ ] Validate the complete local Ollama-to-dashboard insights flow
-- [ ] Multi-feature visualizations and improved feature comparisons
-- [ ] Feature-importance analysis and evidence-backed what-if exploration
-- [ ] Broader end-to-end testing and deployment
+- **Evidence before explanation:** calculate statistics using deterministic code before asking the language model to interpret them.
+- **Reproducibility:** document model versions, training configuration, datasets, random seeds, and evaluation splits.
+- **No unsupported causal claims:** correlation and feature importance do not independently prove causation.
+- **Privacy-aware processing:** handle sensitive datasets carefully and avoid exposing confidential data through external services.
+- **Honest evaluation:** distinguish implemented functionality, tested behavior, and measured model improvements.
+
+## Future Improvements
+
+- Advanced multi-feature visualizations and comparisons.
+- Predictive feature importance and model-assisted what-if analysis.
+- Expanded evaluation benchmarks for fine-tuned AI insights.
+- Improved large-dataset ingestion and memory efficiency.
+- Reproducible model packaging and deployment.
 
 ## Contributing
 
-Issues and pull requests are welcome. Run the relevant backend tests and frontend checks before submitting changes.
+Issues and pull requests are welcome. Run relevant backend tests and frontend checks before submitting changes.
 
 ## License
 
-No license has been specified yet. Check the repository for a `LICENSE` file before reusing or redistributing this project.
+Refer to the repository's `LICENSE` file for usage and redistribution terms. If no license is present, the project has not yet specified an open-source license.
