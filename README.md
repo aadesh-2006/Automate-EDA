@@ -1,103 +1,182 @@
+# DataLens AI — Automated Exploratory Data Analysis
 
-# Automate-EDA
+**DataLens AI** is a full-stack exploratory data analysis platform that helps users profile CSV datasets, identify data-quality issues, visualize distributions and relationships, detect outliers, generate reports, and obtain AI-assisted insights grounded in dataset evidence.
 
-Automated exploratory data analysis for CSV datasets, with statistical profiling, visualizations, and outlier detection. AI-assisted, evidence-grounded insights are planned for a later stage.
+The project combines a React dashboard, a FastAPI backend, deterministic statistical analysis, and an OpenAI-compatible LLM interface for AI-generated insights.
 
-## Current Features
+## Features
 
-- **CSV profiling:** row and column counts, column names, data types, unique values, and numeric statistical summaries.
-- **Data quality:** missing-value counts and percentages, duplicate rows, constant columns, high-cardinality columns, and potential mixed numeric/text columns.
-- **Visualizations:** PNG histograms, box plots, and correlation heatmaps.
-- **Reports:** Downloadable HTML and PDF reports with dataset statistics and charts.
-- **Outlier detection:** identifies potential numeric outliers using the 1.5×IQR rule.
-- **Input validation:** rejects empty CSV content, invalid UTF-8, missing columns, and unsupported numeric data.
-- **REST API:** FastAPI endpoints with automated tests.
+### Dataset Profiling
+- Upload and analyze CSV datasets.
+- View row counts, column counts, column names, data types, unique values, and numeric summaries.
+- Inspect missing-value counts and percentages.
+
+### Data Quality Analysis
+- Detect missing values and duplicate rows.
+- Identify constant columns and high-cardinality columns.
+- Flag potential mixed-type columns.
+- Review structured data-quality findings.
+
+### Visualizations
+- Generate histograms for numeric columns.
+- Generate box plots to inspect distributions and potential outliers.
+- Explore correlations between numeric features with correlation heatmaps.
+- Render visualizations through the dashboard and backend API.
+
+### Outlier Detection
+- Detect potential numeric outliers using the 1.5×IQR rule.
+- Inspect statistical evidence for unusual observations.
+
+### Reports
+- Generate downloadable standalone HTML EDA reports.
+- Generate downloadable PDF reports containing dataset analysis and visualizations.
+
+### AI-Assisted Insights
+- Build structured, deterministic evidence from dataset profiles and data-quality checks.
+- Generate AI-assisted explanations through an OpenAI-compatible chat-completions API.
+- Configure a local LLM using Ollama, including Qwen3:4B.
+- Keep statistical evidence separate from AI-generated interpretations.
+
+**Interpretation note:** Correlation does not establish causation. Statistical findings and model-generated explanations should be interpreted in the context of the dataset.
 
 ## Tech Stack
 
-- **Backend:** Python 3.13+, FastAPI, Pandas, NumPy, SciPy
-- **Visualizations:** Matplotlib
-- **Testing:** Pytest, FastAPI TestClient, HTTPX
-- **Planned frontend:** React, TypeScript, Vite
-- **Planned AI:** Compatible open-weight model for evidence-grounded explanations
+| Layer | Technologies |
+|---|---|
+| Frontend | React, TypeScript, Vite |
+| UI and charts | Tailwind CSS, Recharts, Lucide React |
+| API requests | Axios |
+| Backend | Python, FastAPI |
+| Data analysis | Pandas, NumPy, SciPy |
+| Visualization and reports | Matplotlib, HTML, PDF |
+| AI integration | OpenAI-compatible API, Ollama, Qwen3:4B |
+| Testing | Pytest, FastAPI TestClient, HTTPX |
+| Version control | Git, GitHub |
+
+## Architecture
+
+```text
+CSV Dataset
+    |
+    v
+React + TypeScript Dashboard
+    |
+    v
+FastAPI REST API
+    |
+    +---- Dataset Profiling
+    |
+    +---- Data Quality Analysis
+    |
+    +---- Visualization Generation
+    |
+    +---- Outlier Detection
+    |
+    +---- HTML / PDF Reports
+    |
+    +---- Evidence Generation
+               |
+               v
+       OpenAI-Compatible LLM
+               |
+               v
+        AI-Assisted Insights
+```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.13 or a compatible supported Python version
-- Git
+- Python with a version supported by the backend dependencies.
+- Node.js and npm.
+- Git.
+- Ollama and a compatible model if you want to use local AI insights.
 
-### Installation
-
-Clone the repository and enter the project directory:
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/aadesh-2006/Automate-EDA.git
 cd Automate-EDA
 ```
 
-Create and activate a virtual environment.
+### 2. Set Up the Backend
+
+Create a virtual environment from the repository root.
 
 **Windows PowerShell**
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-```
-
-**macOS / Linux**
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-```
-
-Install the backend dependencies:
-
-```bash
 python -m pip install -r backend/requirements.txt
 ```
 
-### Run the API
-
-From the repository root, set the backend directory on Python's module path and start the development server.
-
-**Windows PowerShell**
+Start the backend from the repository root:
 
 ```powershell
-$env:PYTHONPATH = "backend"
-python -m uvicorn app.main:app --reload --app-dir backend
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000
 ```
 
-**macOS / Linux**
+The API will be available at `http://127.0.0.1:8000`.
 
-```bash
-PYTHONPATH=backend python -m uvicorn app.main:app --reload --app-dir backend
-```
-
-The API runs at `http://127.0.0.1:8000`.
-
-- Health check: `GET /health`
+- Health check: `http://127.0.0.1:8000/health`
 - Interactive API documentation: `http://127.0.0.1:8000/docs`
+
+### 3. Set Up the Frontend
+
+Open a second terminal at the repository root.
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Open the local URL printed by Vite, typically `http://localhost:5173`.
+
+The frontend development server proxies API requests to the backend at `http://127.0.0.1:8000`.
+
+### 4. Configure Local AI with Ollama
+
+Install Ollama from [ollama.com](https://ollama.com/) and download the model:
+
+```powershell
+ollama pull qwen3:4b
+```
+
+Make sure Ollama is running and the model is available. Create a `.env` file in the **repository root**, alongside the backend and frontend directories:
+
+```dotenv
+LLM_BASE_URL=http://localhost:11434/v1
+LLM_API_KEY=ollama
+LLM_MODEL=qwen3:4b
+```
+
+These variables configure the OpenAI-compatible endpoint, API key placeholder, and model name. Ollama normally runs locally at port `11434`.
+
+Keep `.env` local. Do not commit credentials, private configuration, or other secrets to Git. The backend must load these variables before the AI client is initialized.
+
+If AI insights fail to generate, check that Ollama is running, the model is downloaded, the environment variables are correct, and the backend has been restarted after configuration changes.
 
 ## API Reference
 
-CSV endpoints accept raw CSV text in the request body. Send `Content-Type: text/csv`. Image endpoints return PNG bytes; the outlier endpoint returns JSON.
+CSV analysis endpoints accept raw CSV text in the request body with `Content-Type: text/csv`, unless otherwise noted.
 
 | Method | Endpoint | Purpose |
 |---|---|---|
 | GET | `/health` | Check API health |
-| POST | `/api/v1/eda/profile` | Return dataset profile and statistical summaries |
-| POST | `/api/v1/eda/visualizations/histogram?column=age` | Generate a histogram for a numeric column |
-| POST | `/api/v1/eda/visualizations/box-plot?column=age` | Generate a box plot for a numeric column |
-| POST | `/api/v1/eda/visualizations/correlation-heatmap` | Generate a heatmap for numeric columns |
-| POST | `/api/v1/eda/outliers?column=age` | Detect outliers in a numeric column |
-| POST | `/api/v1/eda/data-quality` | Identify data-quality issues and suspicious columns |
-| POST | `/api/v1/eda/report/html` | Download a standalone HTML EDA report |
-| POST | `/api/v1/eda/report/pdf` | Download a PDF EDA report |
+| POST | `/api/v1/eda/profile` | Return dataset profiling and numeric summaries |
+| POST | `/api/v1/eda/data-quality` | Analyze data-quality issues |
+| POST | `/api/v1/eda/visualizations/histogram?column=age` | Generate a histogram |
+| POST | `/api/v1/eda/visualizations/box-plot?column=age` | Generate a box plot |
+| POST | `/api/v1/eda/visualizations/correlation-heatmap` | Generate a numeric correlation heatmap |
+| POST | `/api/v1/eda/outliers?column=age` | Detect potential outliers |
+| POST | `/api/v1/eda/report/html` | Generate a downloadable HTML report |
+| POST | `/api/v1/eda/report/pdf` | Generate a downloadable PDF report |
+| POST | `/api/v1/eda/insights/evidence` | Return structured, deterministic analysis evidence |
+| POST | `/api/v1/eda/insights` | Generate AI-assisted insights from dataset evidence |
 
-### Examples
+### API Examples
 
 Check the API health:
 
@@ -105,7 +184,7 @@ Check the API health:
 curl http://127.0.0.1:8000/health
 ```
 
-Get a profile from a CSV file:
+Profile a CSV dataset:
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/eda/profile" \
@@ -113,7 +192,15 @@ curl -X POST "http://127.0.0.1:8000/api/v1/eda/profile" \
   --data-binary "@sample.csv"
 ```
 
-Generate a histogram and save the returned PNG:
+Analyze data quality:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/v1/eda/data-quality" \
+  -H "Content-Type: text/csv" \
+  --data-binary "@sample.csv"
+```
+
+Generate a histogram and save the PNG response:
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/eda/visualizations/histogram?column=age" \
@@ -131,29 +218,13 @@ curl -X POST "http://127.0.0.1:8000/api/v1/eda/visualizations/correlation-heatma
   --output correlation-heatmap.png
 ```
 
-Analyze data quality:
-
-```bash
-curl -X POST "http://127.0.0.1:8000/api/v1/eda/data-quality" \
-  -H "Content-Type: text/csv" \
-  --data-binary "@sample.csv"
-```
-
-Detect outliers:
-
-```bash
-curl -X POST "http://127.0.0.1:8000/api/v1/eda/outliers?column=age" \
-  -H "Content-Type: text/csv" \
-  --data-binary "@sample.csv"
-```
-
-Download a standalone HTML report:
+Download an HTML report:
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/eda/report/html" \
   -H "Content-Type: text/csv" \
   --data-binary "@sample.csv" \
-  --output datalens-eda-report.html
+  --output datalens-report.html
 ```
 
 Download a PDF report:
@@ -162,36 +233,72 @@ Download a PDF report:
 curl -X POST "http://127.0.0.1:8000/api/v1/eda/report/pdf" \
   -H "Content-Type: text/csv" \
   --data-binary "@sample.csv" \
-  --output datalens-eda-report.pdf
+  --output datalens-report.pdf
 ```
 
-Replace `sample.csv` with your CSV file. The requested column must exist and contain numeric values for histogram, box plot, and outlier detection. The correlation heatmap requires at least two columns containing numeric values.
+Replace `sample.csv` and `age` with your dataset filename and a numeric column present in the CSV.
 
-Invalid input returns HTTP `400` with a JSON `detail` message.
+## Development and Testing
 
-## Run Tests
+### Backend Tests
 
-From the repository root:
+Run from the repository root:
 
-```bash
-python -m pytest backend/tests -v
+```powershell
+.\.venv\Scripts\python.exe -m pytest backend/tests -v
 ```
+
+### Frontend Checks
+
+Run from the `frontend` directory:
+
+```powershell
+npm run lint
+npm run build
+```
+
+The production build runs TypeScript checks and creates the frontend bundle.
+
+## Project Structure
+
+```text
+Automate-EDA/
+├── backend/
+│   ├── app/
+│   │   └── main.py
+│   ├── tests/
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   ├── package.json
+│   └── vite.config.ts
+├── .env                  # Local configuration; do not commit
+├── .gitignore
+└── README.md
+```
+
+The tree above highlights the main application areas; individual modules and files may vary as development continues.
 
 ## Roadmap
 
-- [x] Backend health endpoint and tests
-- [x] Deterministic EDA engine
-- [x] CSV profiling API and input validation
-- [x] Histograms and box plots
-- [x] Correlation heatmaps
+- [x] FastAPI backend and health endpoint
+- [x] CSV profiling and numeric summaries
+- [x] Data-quality analysis
+- [x] Histograms, box plots, and correlation heatmaps
 - [x] IQR-based outlier detection
-- [x] API integration tests
-- [x] More comprehensive data-quality checks
-- [x] Downloadable HTML report
-- [x] Downloadable PDF reports
-- [ ] Evidence-grounded insights using a compatible open-weight model
-- [ ] React dashboard and end-to-end testing
+- [x] Downloadable HTML and PDF reports
+- [x] React + TypeScript dashboard
+- [x] Deterministic evidence-generation endpoint
+- [x] OpenAI-compatible LLM configuration
+- [ ] Validate the complete local Ollama-to-dashboard insights flow
+- [ ] Multi-feature visualizations and improved feature comparisons
+- [ ] Feature-importance analysis and evidence-backed what-if exploration
+- [ ] Broader end-to-end testing and deployment
 
 ## Contributing
 
-Issues and pull requests are welcome. Please run the test suite before submitting changes.
+Issues and pull requests are welcome. Run the relevant backend tests and frontend checks before submitting changes.
+
+## License
+
+No license has been specified yet. Check the repository for a `LICENSE` file before reusing or redistributing this project.
