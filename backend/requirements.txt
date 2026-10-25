@@ -1,4 +1,4 @@
-﻿fastapi
+fastapi
 uvicorn[standard]
 pandas
 numpy
@@ -8,3 +8,4 @@ pytest
 httpx
 
 matplotlib
+reportlab>=5.1.0,<6.0.0

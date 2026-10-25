@@ -8,7 +8,7 @@ Automated exploratory data analysis for CSV datasets, with statistical profiling
 - **CSV profiling:** row and column counts, column names, data types, unique values, and numeric statistical summaries.
 - **Data quality:** missing-value counts and percentages, duplicate rows, constant columns, high-cardinality columns, and potential mixed numeric/text columns.
 - **Visualizations:** PNG histograms, box plots, and correlation heatmaps.
-- **HTML reports:** Downloadable, self-contained reports with dataset statistics and embedded charts.
+- **Reports:** Downloadable HTML and PDF reports with dataset statistics and charts.
 - **Outlier detection:** identifies potential numeric outliers using the 1.5×IQR rule.
 - **Input validation:** rejects empty CSV content, invalid UTF-8, missing columns, and unsupported numeric data.
 - **REST API:** FastAPI endpoints with automated tests.
@@ -95,6 +95,7 @@ CSV endpoints accept raw CSV text in the request body. Send `Content-Type: text/
 | POST | `/api/v1/eda/outliers?column=age` | Detect outliers in a numeric column |
 | POST | `/api/v1/eda/data-quality` | Identify data-quality issues and suspicious columns |
 | POST | `/api/v1/eda/report/html` | Download a standalone HTML EDA report |
+| POST | `/api/v1/eda/report/pdf` | Download a PDF EDA report |
 
 ### Examples
 
@@ -155,6 +156,15 @@ curl -X POST "http://127.0.0.1:8000/api/v1/eda/report/html" \
   --output datalens-eda-report.html
 ```
 
+Download a PDF report:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/api/v1/eda/report/pdf" \
+  -H "Content-Type: text/csv" \
+  --data-binary "@sample.csv" \
+  --output datalens-eda-report.pdf
+```
+
 Replace `sample.csv` with your CSV file. The requested column must exist and contain numeric values for histogram, box plot, and outlier detection. The correlation heatmap requires at least two columns containing numeric values.
 
 Invalid input returns HTTP `400` with a JSON `detail` message.
@@ -178,7 +188,7 @@ python -m pytest backend/tests -v
 - [x] API integration tests
 - [x] More comprehensive data-quality checks
 - [x] Downloadable HTML report
-- [ ] Downloadable PDF reports
+- [x] Downloadable PDF reports
 - [ ] Evidence-grounded insights using a compatible open-weight model
 - [ ] React dashboard and end-to-end testing
 
