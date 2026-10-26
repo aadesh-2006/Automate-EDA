@@ -12,7 +12,7 @@ class LLMProviderError(RuntimeError):
 
 
 def get_llm_config() -> dict[str, str]:
-    """Read and validate OpenAI-compatible API settings from environment."""
+    """Read and validate Ollama API settings from environment."""
     config = {
         "base_url": os.getenv("LLM_BASE_URL", "").strip().rstrip("/"),
         "api_key": os.getenv("LLM_API_KEY", "").strip(),
@@ -25,17 +25,22 @@ def get_llm_config() -> dict[str, str]:
             "Missing LLM configuration: " + ", ".join(missing)
         )
 
+    base_url = config["base_url"]
+    if base_url.endswith("/v1"):
+        base_url = base_url[:-3]
+    config["base_url"] = base_url
+
     return config
 
 
 async def generate_chat_completion(
     system_prompt: str,
     user_prompt: str,
-    timeout_seconds: float = 30.0,
+    timeout_seconds: float = 120.0,
 ) -> str:
-    """Request a chat completion from an OpenAI-compatible provider."""
+    """Request a chat completion from the native Ollama API."""
     config = get_llm_config()
-    url = f"{config['base_url']}/chat/completions"
+    url = f"{config['base_url']}/api/chat"
 
     payload = {
         "model": config["model"],
@@ -43,17 +48,19 @@ async def generate_chat_completion(
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
-        "temperature": 0.2,
+        "stream": False,
+        "think": False,
+        "options": {
+            "temperature": 0.2,
+            "num_predict": 500,
+        },
     }
 
     try:
         async with httpx.AsyncClient(timeout=timeout_seconds) as client:
             response = await client.post(
                 url,
-                headers={
-                    "Authorization": f"Bearer {config['api_key']}",
-                    "Content-Type": "application/json",
-                },
+                headers={"Content-Type": "application/json"},
                 json=payload,
             )
             response.raise_for_status()
@@ -70,8 +77,8 @@ async def generate_chat_completion(
         raise LLMProviderError("LLM provider returned invalid JSON.") from exc
 
     try:
-        content = data["choices"][0]["message"]["content"]
-    except (KeyError, IndexError, TypeError) as exc:
+        content = data["message"]["content"]
+    except (KeyError, TypeError) as exc:
         raise LLMProviderError(
             "LLM provider response did not contain a chat completion."
         ) from exc
@@ -79,4 +86,11 @@ async def generate_chat_completion(
     if not isinstance(content, str) or not content.strip():
         raise LLMProviderError("LLM provider returned empty completion text.")
 
-    return content.strip()
+    content = content.strip()
+    if "</think>" in content:
+        content = content.rsplit("</think>", 1)[-1].strip()
+
+    if not content:
+        raise LLMProviderError("LLM provider returned empty final answer.")
+
+    return content

@@ -21,7 +21,7 @@ def test_get_llm_config_reads_environment_variables(monkeypatch):
     config = get_llm_config()
 
     assert config == {
-        "base_url": "https://example.com/v1",
+        "base_url": "https://example.com",
         "api_key": "test-token",
         "model": "test-model",
     }
@@ -54,17 +54,20 @@ def test_generate_chat_completion_returns_assistant_text(monkeypatch):
     monkeypatch.setenv("LLM_MODEL", "test-model")
 
     def mock_handler(request):
-        assert str(request.url) == "https://example.com/v1/chat/completions"
-        assert request.headers["Authorization"] == "Bearer test-token"
+        assert str(request.url) == "https://example.com/api/chat"
+        assert "Authorization" not in request.headers
 
         payload = json.loads(request.content)
         assert payload["model"] == "test-model"
+        assert payload["stream"] is False
+        assert payload["think"] is False
+        assert payload["options"]["temperature"] == 0.2
         assert payload["messages"][0]["role"] == "system"
         assert payload["messages"][1]["content"] == "Analyze this evidence."
 
         return httpx.Response(
             200,
-            json={"choices": [{"message": {"content": "  Two columns found.  "}}]},
+            json={"message": {"content": "  Two columns found.  "}},
         )
 
     original_client = httpx.AsyncClient

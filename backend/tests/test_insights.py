@@ -93,7 +93,7 @@ def test_generate_dataset_insights_returns_grounded_evidence_and_text(monkeypatc
 
     assert evidence["dataset"]["rows"] == 2
     assert evidence["dataset"]["column_names"] == ["score", "note"]
-    assert "Do not invent statistics" in captured["system_prompt"]
+    assert "Use only facts present in the supplied evidence." in captured["system_prompt"]
     assert result["dataset"]["rows"] == 2
     assert isinstance(result["findings"], list)
     assert "Two rows and two columns." in result["insights"]
